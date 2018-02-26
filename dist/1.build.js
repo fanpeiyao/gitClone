@@ -1,2 +1,18 @@
-webpackJsonp([1],{19:function(t,a,s){"use strict";Object.defineProperty(a,"__esModule",{value:!0});var e=s(23),i=s(29),c=s(0),l=c(e.a,i.a,!1,null,null,null);a.default=l.exports},23:function(t,a,s){"use strict";a.a={data:function(){return{modules:config.modules,back:config.about}}},$(function(){$(".top-nav").sideNav()})},29:function(t,a,s){"use strict";var e=function(){var t=this,a=t.$createElement,s=t._self._c||a;return s("header",[t._m(0),t._v(" "),s("ul",{staticClass:"side-nav fixed",attrs:{id:"slide-nav"}},[s("li",{staticClass:"logo"},[s("div",{staticClass:"brand-logo",attrs:{id:"logo-container"}},[s("img",{attrs:{src:t.back.logo,alt:"",height:"100px"}}),t._v(" "),s("div",[t._v(t._s(t.back.msg)+" "+t._s(t.back.version))])])]),t._v(" "),t._l(t.modules,function(a){return s("li",{staticClass:"bold"},[s("router-link",{staticClass:"waves-effect waves-teal",attrs:{to:a.id}},[t._v(t._s(a.name))])],1)}),t._v(" "),s("li",{staticClass:"bold"},[s("router-link",{staticClass:"waves-effect waves-teal",attrs:{to:"/about"}},[t._v("About")])],1)],2),t._v(" "),s("div",{staticClass:"patreon-ad "},[s("a",{staticClass:"waves-effect waves-teal",attrs:{href:t.back.backHref}},[s("i",{staticClass:"material-icons"},[t._v(t._s(t.back.icon))]),t._v("\n      "+t._s(t.back.backTxt))])])])},i=[function(){var t=this,a=t.$createElement,s=t._self._c||a;return s("div",{staticClass:"container"},[s("a",{staticClass:"button-collapse top-nav waves-effect waves-light circle hide-on-large-only",attrs:{"data-activates":"slide-nav"}},[s("i",{staticClass:"material-icons"},[t._v("menu")])])])}],c={render:e,staticRenderFns:i};a.a=c}});
-//# sourceMappingURL=1.build.js.map
+ Date.prototype.format = function(fmt){
+        var o = {
+            "M+":this.getMonth()+1,// 月份
+            "d+":this.getDate(), //日期
+            "H+":this.getHours(),  //小时
+            "m+":this.getMinutes(), //分
+            "s+":this.getSeconds(), //秒,
+            "q+":Math.floor((this.getMonth()+3)/3),//季度
+            "S+":this.getMilliseconds() //毫秒
+        },k;
+        if(!fmt) fmt = "yyyy-MM-dd";
+        if(/(y+)/.test(fmt))
+            fmt = fmt.replace(RegExp.$1,(this.getFullYear()+"").substr(4-RegExp.$1.length));
+        for(k in o)
+            if (new RegExp("("+k+")").test(fmt))
+                fmt = fmt.replace(RegExp.$1,(RegExp.$1.length == 1)?(o[k]):(('00' + o[k]).substr((""+o[k]).length)));
+        return fmt;
+    };
