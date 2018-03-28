@@ -1,5 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <link href="http://resource.gongyinju.com/resource/CDN/materialize/1.0.0-alpha.3/css/materialize.css" rel="stylesheet">
+    <script src="http://resource.gongyinju.com/resource/CDN/jquery/3.2.1/jquery.js"></script>
+    <script src="http://resource.gongyinju.com/resource/CDN/materialize/1.0.0-alpha.3/js/materialize.js"></script>
+</head>
+<body>
 
-  <nav> <!-- navbar content here  --> </nav>
+
+<!-- Modal Trigger -->
+  <a class="waves-effect waves-light btn modal-trigger" href="#modal1">Modal</a>
+
+  <!-- Modal Structure -->
+  <div id="modal1" class="modal">
+    <div class="modal-content">
+      <h4>Modal Header</h4>
+      <p>A bunch of text</p>
+    </div>
+    <div class="modal-footer">
+      <a href="#!" class="modal-action modal-close waves-effect waves-green btn-flat">Agree</a>
+    </div>
+  </div>
+
+
 
   <ul id="slide-out" class="sidenav">
     <li><div class="user-view">
@@ -18,17 +43,17 @@
   </ul>
   <a href="#" data-target="slide-out" class="sidenav-trigger"><i class="material-icons">menu</i></a>
 
-    
-    
-  var elem = document.querySelector('.sidenav');
-  var instance = M.Sidenav.init(elem, options);
 
-  // Initialize collapsible (uncomment the lines below if you use the dropdown variation)
-  // var collapsibleElem = document.querySelector('.collapsible');
-  // var collapsibleInstance = M.Collapsible.init(collapsibleElem, options);
-
-  // Or with jQuery
-
+<script type="text/javascript">
   $(document).ready(function(){
+    $('.modal').modal();
     $('.sidenav').sidenav();
+
+
+
   });
+
+
+</script>
+</body>
+</html>
