@@ -1,81 +1,119 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Document</title>
-    <link href="http://resource.gongyinju.com/resource/CDN/materialize/1.0.0-alpha.3/css/materialize.css" rel="stylesheet">
-    <script src="http://resource.gongyinju.com/resource/CDN/jquery/3.2.1/jquery.min.js"></script>
-    <script src="http://resource.gongyinju.com/resource/CDN/materialize/1.0.0-alpha.3/js/materialize.js"></script>
+var _ = {};
+var escapeRegExp = /\\|'|\r|\n|\u2028|\u2029/g;
+var escapes = {
+    "'": "'",
+    '\\': '\\',
+    '\r': 'r',
+    '\n': 'n',
+    '\u2028': 'u2028',
+    '\u2029': 'u2029'
+  };
 
-</head>
-<body>
-    <div class="row">
-        <form class="col s12">
-          <div class="row">
-            <div class="input-field col s6">
-              <i class="  prefix">手机号</i>
-              <textarea id="icon_prefix2" class="materialize-textarea"></textarea>
-              <label for="icon_prefix2">First Name</label>
-            </div>
-          </div>
-        </form>
-    </div>
+var noMatch = /(.)^/;
+var escapeChar = function(match) {
+    return '\\' + escapes[match];
+};
+var createAssigner = function(keysFunc, defaults) {
+    return function(obj) {
+      var length = arguments.length;
+      if (defaults) obj = Object(obj);
+      if (length < 2 || obj == null) return obj;
+      for (var index = 1; index < length; index++) {
+        var source = arguments[index],
+            keys = keysFunc(source),
+            l = keys.length;
+        for (var i = 0; i < l; i++) {
+          var key = keys[i];
+          if (!defaults || obj[key] === void 0) obj[key] = source[key];
+        }
+      }
+      return obj;
+    };
+};
+//使用 {%= … %}插入变量,
+//用{% … %}执行任意的 JavaScript 代码
+//如果您希望插入一个值, 并让其进行HTML转义,请使用{%- … %}
 
+//使用 {{ …}}插入变量,
+//用{{=  …}}执行任意的 JavaScript 代码
+//如果您希望插入一个值, 并让其进行HTML转义,请使用{{-  …}}
+_.templateSettings = {
+    evaluate : /\{\{=([\s\S]+?)\}\}/g,
+    //interpolate : /\{%=([\s\S]+?)\%\}/g,
+    interpolate : /\{\{([\s\S]+?)\}\}/g,
+    escape : /\{\{-([\s\S]+?)}\}/g
+}
 
+_.allKeys = function(obj) {
+    var keys = [];
+    for (var key in obj) keys.push(key);
+    return keys;
+};
+_.defaults = createAssigner(_.allKeys, true);
+_.template = function(text, settings, oldSettings) {
+    if (!settings && oldSettings) settings = oldSettings;
+    settings = _.defaults({}, settings, _.templateSettings);
 
- <div class="row">
-    <form class="col s12">
-      <div class="row">
-        <div class="input-field col s6">
-          <input placeholder="Placeholder" id="first_name" type="text" class="validate">
-          <label for="first_name">First Name</label>
-        </div>
-        <div class="input-field col s6">
-          <input id="last_name" type="text" class="validate">
-          <label for="last_name">Last Name</label>
-        </div>
-      </div>
-      <div class="row">
-        <div class="input-field col s12">
-          <input disabled value="I am not editable" id="disabled" type="text" class="validate">
-          <label for="disabled">Disabled</label>
-        </div>
-      </div>
-      <div class="row">
-        <div class="input-field col s12">
-          <input id="password" type="password" class="validate">
-          <label for="password">Password</label>
-        </div>
-      </div>
-      <div class="row">
-        <div class="input-field col s12">
-          <input id="email" type="email" class="validate">
-          <label for="email">Email</label>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col s12">
-          This is an inline input field:
-          <div class="input-field inline">
-            <input id="email_inline" type="email" class="validate">
-            <label for="email_inline">Email</label>
-            <span class="helper-text" data-error="wrong" data-success="right">Helper text</span>
-          </div>
-        </div>
-      </div>
-    </form>
-  </div>
+    // Combine delimiters into one regular expression via alternation.
+    var matcher = RegExp([
+      (settings.escape || noMatch).source,
+      (settings.interpolate || noMatch).source,
+      (settings.evaluate || noMatch).source
+    ].join('|') + '|$', 'g');
 
+    // Compile the template source, escaping string literals appropriately.
+    var index = 0;
+    var source = "__p+='";
+    text.replace(matcher, function(match, escape, interpolate, evaluate, offset) {
+      source += text.slice(index, offset).replace(escapeRegExp, escapeChar);
+      index = offset + match.length;
 
+      if (escape) {
+        source += "'+\n((__t=(" + escape + "))==null?'':_.escape(__t))+\n'";
+      } else if (interpolate) {
+        source += "'+\n((__t=(" + interpolate + "))==null?'':__t)+\n'";
+      } else if (evaluate) {
+        source += "';\n" + evaluate + "\n__p+='";
+      }
+      return match;
+    });
+    source += "';\n";
 
+    // If a variable is not specified, place data values in local scope.
+    if (!settings.variable) source = 'with(obj||{}){\n' + source + '}\n';
 
+    source = "var __t,__p='',__j=Array.prototype.join," +
+      "print=function(){__p+=__j.call(arguments,'');};\n" +
+      source + 'return __p;\n';
 
+    var render;
+    try {
+      render = new Function(settings.variable || 'obj', '_', source);
+    } catch (e) {
+      e.source = source;
+      throw e;
+    }
 
+    var template = function(data) {
+      return render.call(this, data, _);
+    };
 
+    // Provide the compiled source as a convenience for precompilation.
+    var argument = settings.variable || 'obj';
+    template.source = 'function(' + argument + '){\n' + source + '}';
 
-
-<script type="text/javascript">
-
-</script>
-</body>
-</html>
+    return template;
+};
+/*
+ *接收参数's3core.common.xxx'
+ */
+var is3n = function (template,appid){
+   if (!template)
+        return
+    if (!appid)
+        appid = 's3Core'
+    var appid = properties[appid];
+    var compiled = _.template(template);
+    compiled = compiled({appid});
+    return compiled;
+}
